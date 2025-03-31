@@ -22,7 +22,7 @@ jobs:
       # 使用する.NETのバージョン (例: '6.0.x', '7.0.x', '8.0.x')
       DOTNET_VERSION: '9.0.x'
       # Windows向けのランタイム識別子 (通常はこれでOK, 必要なら win-arm64 などに変更)
-      RUNTIME_IDENTIFIER: win-x64
+      RUNTIME_IDENTIFIER: Any CPU
       # --- ▲▲▲ プロジェクト設定に合わせて変更してください ▲▲▲ ---
     
       # --- 以下の変数は通常変更不要 ---

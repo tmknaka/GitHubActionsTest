@@ -29,13 +29,16 @@ jobs:
       RELEASE_TAG: ${{ github.ref_name }} # トリガーとなったタグ名 (例: v1.0.0)
       CONFIG: Release # ビルド構成
       PUBLISH_DIR: ./publish # 発行先の一時ディレクトリ
-      # アーカイブファイル名 (例: YourAppName-v1.0.0-win-x64.zip)
-      ARCHIVE_NAME: ${{ env.APP_NAME }}-${{ github.ref_name }}-${{ env.RUNTIME_IDENTIFIER }}
       ARCHIVE_EXTENSION: zip
-      # アーカイブファイルのフルパス
-      ARCHIVE_PATH: ./${{ env.ARCHIVE_NAME }}.${{ env.ARCHIVE_EXTENSION }}
 
     steps:
+    # 派生的な環境変数を設定
+    - name: Set derived environment variables
+      run: |
+        echo "ARCHIVE_NAME=${{ env.APP_NAME }}-${{ github.ref_name }}-${{ env.RUNTIME_IDENTIFIER }}" >> $GITHUB_ENV
+        echo "ARCHIVE_PATH=./${{ env.APP_NAME }}-${{ github.ref_name }}-${{ env.RUNTIME_IDENTIFIER }}.${{ env.ARCHIVE_EXTENSION }}" >> $GITHUB_ENV
+      shell: bash
+    
     # ステップ1: リポジトリのコードをチェックアウト
     - name: Checkout repository
       uses: actions/checkout@v4

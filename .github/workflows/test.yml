@@ -9,10 +9,7 @@ on:
 jobs:
   build-release-windows:
     name: Build and Release for Windows
-    # 実行環境をWindowsに固定
     runs-on: windows-latest
-
-    # リリース作成・アセットアップロードに必要な権限
     permissions:
       contents: write
 
@@ -27,7 +24,7 @@ jobs:
       # Windows向けのランタイム識別子 (通常はこれでOK, 必要なら win-arm64 などに変更)
       RUNTIME_IDENTIFIER: win-x64
       # --- ▲▲▲ プロジェクト設定に合わせて変更してください ▲▲▲ ---
-
+    
       # --- 以下の変数は通常変更不要 ---
       RELEASE_TAG: ${{ github.ref_name }} # トリガーとなったタグ名 (例: v1.0.0)
       CONFIG: Release # ビルド構成
@@ -42,33 +39,33 @@ jobs:
     # ステップ1: リポジトリのコードをチェックアウト
     - name: Checkout repository
       uses: actions/checkout@v4
-
+    
     # ステップ2: .NET SDKをセットアップ
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
-
+    
     # ステップ3: NuGetパッケージを復元 (プロジェクトパスを指定)
     - name: Restore dependencies
       run: dotnet restore ${{ env.PROJECT_PATH }}
-
+    
     # ステップ4: プロジェクトをビルド (プロジェクトパスを指定)
     - name: Build
       run: dotnet build ${{ env.PROJECT_PATH }} --configuration ${{ env.CONFIG }} --no-restore
-
+    
     # ステップ5: アプリケーションを発行 (自己完結型, Windows向け)
     # --self-contained true: .NETランタイムを含める (実行環境に.NET不要)
     # -r: ランタイム識別子を指定
     - name: Publish application
       run: dotnet publish ${{ env.PROJECT_PATH }} --configuration ${{ env.CONFIG }} --no-build --self-contained true -r ${{ env.RUNTIME_IDENTIFIER }} -o ${{ env.PUBLISH_DIR }}
-
+    
     # ステップ6: 発行されたファイルをZIPアーカイブ (PowerShellを使用)
     - name: Archive published files
       shell: pwsh # PowerShellで実行
       # PUBLISH_DIR 内のすべてのファイルとフォルダを対象に、ARCHIVE_PATH へZIP圧縮
       run: Compress-Archive -Path ${{ env.PUBLISH_DIR }}\* -DestinationPath ${{ env.ARCHIVE_PATH }}
-
+    
     # ステップ7: GitHub Releasesを作成または取得
     # 同じタグのリリースが既に存在する場合は、既存のリリース情報を取得する
     - name: Create or Get Release
@@ -83,7 +80,7 @@ jobs:
         #   Windows release for tag ${{ env.RELEASE_TAG }}
         draft: false # falseにすると即時公開 (trueにすると下書き)
         prerelease: contains(github.ref_name, '-') # タグ名に '-' (例: v1.0.0-beta) が含まれる場合はプレリリース扱い
-
+    
     # ステップ8: 作成したZIPファイルをリリースにアップロード
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
